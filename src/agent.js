@@ -626,6 +626,7 @@ export async function startAgent(settings, options = {}) {
             resumeThinkingLevel: 'minimal',
             reconnected: reconnecting,
             tools,
+            toolPolicy: options.toolPolicy,
             maxModelCalls: Number.MAX_SAFE_INTEGER,
             maxToolCalls: Number.MAX_SAFE_INTEGER,
             continuous: true,

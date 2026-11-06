@@ -1,0 +1,38 @@
+id: tool-qualification-v1
+version: 1
+maxAgents: 4
+objective: >-
+  Collect logs, craft planks and a crafting table, place the table, craft and place a chest, deposit an item into it,
+  gather food and eat it.
+scorer: tool-qualification
+# Frozen tool allowlist. Upstream names are used so the same list drives the mock adapter and the real session policy.
+tools:
+  - observe_world
+  - inventory
+  - inspect_block
+  - look
+  - go_to
+  - stop_action
+  - gather
+  - break_block
+  - place
+  - craft
+  - deposit
+  - withdraw
+  - eat
+  - equip
+  - select_hotbar
+  - send_dm
+  - read_dms
+  - message_status
+  - directory
+  - directory_search
+  - wait
+observation:
+  policyVersion: 1
+  blockRangeBlocks: 16
+  maxBlocks: 32
+  maxEntities: 16
+  maxRecentFailures: 5
+reconnectPolicy: none
+toolTimeoutMs: 10000

@@ -30,7 +30,17 @@
     "format:check": "prettier --check .",
     "check": "npm run lint && npm run format:check && npm test",
     "server": "node scripts/dev-server.js",
-    "vision:install": "npm install --no-save prismarine-viewer@1.33.0 node-canvas-webgl@0.3.0 && patch-package --patch-dir src/vision/patches"
+    "vision:install": "npm install --no-save prismarine-viewer@1.33.0 node-canvas-webgl@0.3.0 && patch-package --patch-dir src/vision/patches",
+    "lab:doctor": "node --disable-warning=ExperimentalWarning lab/cli/lab.js doctor",
+    "lab:test": "node --disable-warning=ExperimentalWarning --test \"tests/lab/**/*.test.js\"",
+    "lab:validate": "node --disable-warning=ExperimentalWarning lab/cli/lab.js validate",
+    "lab:run": "node --disable-warning=ExperimentalWarning lab/cli/lab.js run",
+    "lab:status": "node --disable-warning=ExperimentalWarning lab/cli/lab.js status",
+    "lab:stop": "node --disable-warning=ExperimentalWarning lab/cli/lab.js stop",
+    "lab:report": "node --disable-warning=ExperimentalWarning lab/cli/lab.js report",
+    "lab:replay": "node --disable-warning=ExperimentalWarning lab/cli/lab.js replay",
+    "lab:auth": "node --disable-warning=ExperimentalWarning lab/cli/lab.js auth",
+    "lab:transport-check": "node --disable-warning=ExperimentalWarning lab/cli/lab.js transport-check"
   },
   "keywords": [
     "minecraft",
@@ -52,7 +62,8 @@
     "patch-package": "^8.0.1",
     "prismarine-item": "1.18.0",
     "ses": "1.15.0",
-    "vec3": "0.1.10"
+    "vec3": "0.1.10",
+    "yaml": "2.9.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

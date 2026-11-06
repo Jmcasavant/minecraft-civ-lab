@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Lab run configuration v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "mode", "scenario", "agents", "controller", "runtime", "model", "limits", "policy"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "mode": { "enum": ["mock", "subscription", "paid"] },
+    "scenario": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]{1,63}$" },
+    "agents": { "type": "integer", "minimum": 1, "maximum": 4 },
+    "assignmentSeed": { "type": "integer", "minimum": 0 },
+    "campaignId": { "type": "string", "pattern": "^[A-Za-z0-9._-]{1,64}$" },
+    "controller": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bind", "paidApprovalRequired"],
+      "properties": {
+        "bind": { "enum": ["127.0.0.1", "::1", "localhost"] },
+        "paidApprovalRequired": { "const": true }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "upstreamCommit",
+        "serverVersion",
+        "paperBuild",
+        "serverImageDigest",
+        "fixtureId",
+        "fixtureSha256",
+        "durationSeconds"
+      ],
+      "properties": {
+        "upstreamCommit": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$" },
+        "serverVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$" },
+        "paperBuild": { "type": ["integer", "null"], "minimum": 1 },
+        "serverImageDigest": { "type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$" },
+        "fixtureId": { "type": ["string", "null"], "maxLength": 128 },
+        "fixtureSha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+        "durationSeconds": { "type": "integer", "minimum": 1, "maximum": 86400 }
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "id", "pricingRecord", "maxOutputTokens", "maxConcurrentRequestsPerAgent"],
+      "properties": {
+        "provider": { "type": "string", "pattern": "^[a-z0-9-]{1,40}$" },
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "pricingRecord": { "type": ["string", "null"], "maxLength": 512 },
+        "maxOutputTokens": { "type": "integer", "minimum": 1, "maximum": 1000000 },
+        "maxConcurrentRequestsPerAgent": { "type": "integer", "minimum": 1, "maximum": 8 }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runBudgetUsd", "campaignBudgetUsd", "maxProviderRequests", "maxModelRetries"],
+      "properties": {
+        "runBudgetUsd": { "type": "number", "minimum": 0 },
+        "campaignBudgetUsd": { "type": "number", "minimum": 0 },
+        "maxProviderRequests": { "type": "integer", "minimum": 0 },
+        "maxModelRetries": { "type": "integer", "minimum": 0, "maximum": 10 }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sandbox",
+        "sharedMachine",
+        "generatedCode",
+        "internetResearch",
+        "observationMode",
+        "coordination",
+        "survivalReflexes",
+        "autoResumePreviousRun"
+      ],
+      "properties": {
+        "sandbox": { "const": "none" },
+        "sharedMachine": { "const": "none" },
+        "generatedCode": { "const": false },
+        "internetResearch": { "const": false },
+        "observationMode": { "const": "text" },
+        "coordination": { "enum": ["minimal", "structured"] },
+        "survivalReflexes": { "const": "frozen-baseline" },
+        "autoResumePreviousRun": { "const": false }
+      }
+    }
+  }
+}

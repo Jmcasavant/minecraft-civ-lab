@@ -383,7 +383,9 @@ class MinecraftSession {
         const names = new Set();
         if (this.options.tools?.some(tool => tool.name === 'session_history'))
             throw new Error('Reserved native tool name: session_history');
-        const tools = [...(this.options.tools ?? []), createSessionHistoryTool(() => this.manager.getEntries())].map(
+        const candidates = [...(this.options.tools ?? []), createSessionHistoryTool(() => this.manager.getEntries())];
+        const admitted = this.options.toolPolicy ? this.options.toolPolicy(candidates) : candidates;
+        const tools = admitted.map(
             tool => {
                 if (!tool.name || names.has(tool.name) || typeof tool.execute !== 'function')
                     throw new Error('Invalid or duplicate native tool');

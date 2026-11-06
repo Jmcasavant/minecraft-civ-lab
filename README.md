@@ -1,3 +1,9 @@
+> **This is a research lab built on YC's harness, and is not the original project.** It adds a controller, budget ledger,
+> independent scoring and a model broker under `lab/`, on top of
+> [yc-software/minecraft-agent-harness](https://github.com/yc-software/minecraft-agent-harness) at commit `775d558`, under that
+> project's MIT license. Early and unqualified: see [docs/STATUS.md](docs/STATUS.md) for what has and hasn't been shown to work.
+> Everything below is upstream's README, unchanged.
+
 <h1 align="center">minecraft-agent-harness</h1>
 
 <p align="center">LLM agents that play Minecraft.</p>

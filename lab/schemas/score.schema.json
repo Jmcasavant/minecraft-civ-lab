@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Lab score v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "scenario",
+    "evidenceClass",
+    "primaryCompletion",
+    "points",
+    "maxPoints",
+    "evaluatedAtTick",
+    "integrity",
+    "components"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1" },
+    "scenario": { "type": "string" },
+    "evidenceClass": { "enum": ["authoritative", "mock"] },
+    "primaryCompletion": { "type": "boolean" },
+    "points": { "type": "number", "minimum": 0 },
+    "maxPoints": { "type": "number", "minimum": 0 },
+    "evaluatedAtTick": { "type": ["integer", "null"] },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["terminalSnapshot", "sequenceGaps", "ignoredNonAuthoritativeEvents", "lateEvents"],
+      "properties": {
+        "terminalSnapshot": { "type": "boolean" },
+        "sequenceGaps": { "type": "array" },
+        "ignoredNonAuthoritativeEvents": { "type": "integer", "minimum": 0 },
+        "lateEvents": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "predicateVersion", "outcome", "points", "maxPoints", "evidenceIds", "reasons"],
+        "properties": {
+          "id": { "type": "string" },
+          "predicateVersion": { "type": "string" },
+          "outcome": { "enum": ["pass", "fail", "unsupported"] },
+          "points": { "type": "number", "minimum": 0 },
+          "maxPoints": { "type": "number", "minimum": 0 },
+          "evidenceIds": { "type": "array", "items": { "type": "string" } },
+          "reasons": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

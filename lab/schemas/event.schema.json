@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Lab event envelope v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "runId",
+    "eventId",
+    "source",
+    "sourceSeq",
+    "collectorSeq",
+    "tick",
+    "elapsedMs",
+    "utc",
+    "type",
+    "actorId",
+    "correlationId",
+    "payload",
+    "evidenceQuality"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1" },
+    "runId": { "type": "string", "minLength": 1 },
+    "eventId": { "type": "string", "minLength": 1 },
+    "source": { "type": "string", "pattern": "^[a-z0-9:-]{1,40}$" },
+    "sourceSeq": { "type": "integer", "minimum": 1 },
+    "collectorSeq": { "type": "integer", "minimum": 1 },
+    "tick": { "type": ["integer", "null"], "minimum": 0 },
+    "elapsedMs": { "type": "integer", "minimum": 0 },
+    "utc": { "type": "string" },
+    "type": { "type": "string", "pattern": "^[a-z_]+(\\.[a-z_]+)+$" },
+    "actorId": { "type": ["string", "null"] },
+    "correlationId": { "type": ["string", "null"] },
+    "payload": { "type": "object" },
+    "evidenceQuality": { "enum": ["authoritative", "mock", "operational", "claim"] }
+  }
+}
