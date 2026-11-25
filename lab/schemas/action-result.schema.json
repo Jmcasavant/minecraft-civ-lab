@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Lab ActionResult v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "runId",
+    "actionId",
+    "actorId",
+    "status",
+    "startedTick",
+    "finishedTick",
+    "observedDelta",
+    "evidenceIds",
+    "retryable"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1" },
+    "runId": { "type": "string" },
+    "actionId": { "type": "string" },
+    "actorId": { "type": "string" },
+    "status": { "enum": ["succeeded", "partial", "failed", "cancelled"] },
+    "failureCode": { "type": "string" },
+    "startedTick": { "type": "integer", "minimum": 0 },
+    "finishedTick": { "type": "integer", "minimum": 0 },
+    "observedDelta": { "type": "object" },
+    "evidenceIds": { "type": "array", "items": { "type": "string" } },
+    "retryable": { "type": "boolean" },
+    "suggestedRecovery": { "type": "string" }
+  }
+}

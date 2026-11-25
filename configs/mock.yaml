@@ -1,0 +1,37 @@
+# Offline mock run: mock provider, simulated world, zero spend. Nothing here is Minecraft evidence.
+schemaVersion: 1
+mode: mock
+scenario: tool-qualification-v1
+agents: 2
+assignmentSeed: 1
+controller:
+  bind: 127.0.0.1
+  paidApprovalRequired: true
+runtime:
+  upstreamCommit: 775d558689f5e4eaa0f1d0d7a320035190b1fce6
+  serverVersion: 1.21.6
+  paperBuild: null
+  serverImageDigest: null
+  fixtureId: null
+  fixtureSha256: null
+  durationSeconds: 5
+model:
+  provider: mock
+  id: scripted-v1
+  pricingRecord: null
+  maxOutputTokens: 1024
+  maxConcurrentRequestsPerAgent: 1
+limits:
+  runBudgetUsd: 0
+  campaignBudgetUsd: 0
+  maxProviderRequests: 0
+  maxModelRetries: 1
+policy:
+  sandbox: none
+  sharedMachine: none
+  generatedCode: false
+  internetResearch: false
+  observationMode: text
+  coordination: minimal
+  survivalReflexes: frozen-baseline
+  autoResumePreviousRun: false

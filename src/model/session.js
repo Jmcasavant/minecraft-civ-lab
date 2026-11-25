@@ -383,76 +383,75 @@ class MinecraftSession {
         const names = new Set();
         if (this.options.tools?.some(tool => tool.name === 'session_history'))
             throw new Error('Reserved native tool name: session_history');
-        const tools = [...(this.options.tools ?? []), createSessionHistoryTool(() => this.manager.getEntries())].map(
-            tool => {
-                if (!tool.name || names.has(tool.name) || typeof tool.execute !== 'function')
-                    throw new Error('Invalid or duplicate native tool');
-                names.add(tool.name);
-                return {
-                    ...tool,
-                    executionMode: 'sequential',
-                    execute: async (...args) => {
-                        const cycle = this.active;
-                        if (!cycle || cycle.stop || cycle.controller.signal.aborted) throw stopError();
-                        if (cycle.tools >= this.options.maxToolCalls) {
-                            this.stopCycle('budget');
-                            throw stopError();
+        const candidates = [...(this.options.tools ?? []), createSessionHistoryTool(() => this.manager.getEntries())];
+        const admitted = this.options.toolPolicy ? this.options.toolPolicy(candidates) : candidates;
+        const tools = admitted.map(tool => {
+            if (!tool.name || names.has(tool.name) || typeof tool.execute !== 'function')
+                throw new Error('Invalid or duplicate native tool');
+            names.add(tool.name);
+            return {
+                ...tool,
+                executionMode: 'sequential',
+                execute: async (...args) => {
+                    const cycle = this.active;
+                    if (!cycle || cycle.stop || cycle.controller.signal.aborted) throw stopError();
+                    if (cycle.tools >= this.options.maxToolCalls) {
+                        this.stopCycle('budget');
+                        throw stopError();
+                    }
+                    cycle.tools++;
+                    cycle.inTool = (cycle.inTool ?? 0) + 1;
+                    (cycle.toolNames ??= []).push(tool.name);
+                    const start = this.clock.now();
+                    let success = false;
+                    let code = 'unknown';
+                    let signal, errorText, resultText;
+                    try {
+                        signal = args[2]
+                            ? AbortSignal.any([args[2], cycle.controller.signal])
+                            : cycle.controller.signal;
+                        let result = await tool.execute(args[0], args[1], signal, args[3], args[4]);
+                        success = !signal.aborted && !result?.isError;
+                        resultText = textOf(result);
+                        if (!success) {
+                            code = failureCode(result, signal);
+                            errorText = result?.details?.error ?? result?.content?.find?.(c => c.type === 'text')?.text;
                         }
-                        cycle.tools++;
-                        cycle.inTool = (cycle.inTool ?? 0) + 1;
-                        (cycle.toolNames ??= []).push(tool.name);
-                        const start = this.clock.now();
-                        let success = false;
-                        let code = 'unknown';
-                        let signal, errorText, resultText;
-                        try {
-                            signal = args[2]
-                                ? AbortSignal.any([args[2], cycle.controller.signal])
-                                : cycle.controller.signal;
-                            let result = await tool.execute(args[0], args[1], signal, args[3], args[4]);
-                            success = !signal.aborted && !result?.isError;
-                            resultText = textOf(result);
-                            if (!success) {
-                                code = failureCode(result, signal);
-                                errorText =
-                                    result?.details?.error ?? result?.content?.find?.(c => c.type === 'text')?.text;
-                            }
-                            const note = this.options.toolResultNote?.();
-                            if (note)
-                                result = {
-                                    ...(result ?? {}),
-                                    content: [
-                                        ...(Array.isArray(result?.content) ? result.content : []),
-                                        { type: 'text', text: note },
-                                    ],
-                                };
-                            return result;
-                        } catch (error) {
-                            code = failureCode(error, signal);
-                            errorText = error?.message ?? error;
-                            throw error;
-                        } finally {
-                            cycle.inTool--;
-                            metric(this.options.telemetry, {
+                        const note = this.options.toolResultNote?.();
+                        if (note)
+                            result = {
+                                ...(result ?? {}),
+                                content: [
+                                    ...(Array.isArray(result?.content) ? result.content : []),
+                                    { type: 'text', text: note },
+                                ],
+                            };
+                        return result;
+                    } catch (error) {
+                        code = failureCode(error, signal);
+                        errorText = error?.message ?? error;
+                        throw error;
+                    } finally {
+                        cycle.inTool--;
+                        metric(this.options.telemetry, {
+                            tool: tool.name,
+                            args: clip(args[1] ?? {}, 500),
+                            timeMs: this.clock.now() - start,
+                            success,
+                            ...(!success ? { failureCode: code } : {}),
+                            result: redactPayloads(compactResult(String(errorText ?? resultText ?? ''), 300)),
+                        });
+                        if (!success && !signal?.aborted)
+                            this.diagnose({
+                                event: 'tool_error',
                                 tool: tool.name,
-                                args: clip(args[1] ?? {}, 500),
-                                timeMs: this.clock.now() - start,
-                                success,
-                                ...(!success ? { failureCode: code } : {}),
-                                result: redactPayloads(compactResult(String(errorText ?? resultText ?? ''), 300)),
+                                failureCode: code,
+                                errorMessage: redactPayloads(String(errorText ?? '').slice(0, 400)),
                             });
-                            if (!success && !signal?.aborted)
-                                this.diagnose({
-                                    event: 'tool_error',
-                                    tool: tool.name,
-                                    failureCode: code,
-                                    errorMessage: redactPayloads(String(errorText ?? '').slice(0, 400)),
-                                });
-                        }
-                    },
-                };
-            },
-        );
+                    }
+                },
+            };
+        });
         this.wrappedTools = new Map(tools.map(tool => [tool.name, tool]));
         const result = await this.createSession({ ...this.options, tools });
         this.session = result.session;

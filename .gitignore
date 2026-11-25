@@ -10,3 +10,6 @@ server-*/
 server.properties
 *.pem
 *.key
+
+# Minecraft Civilization Lab
+runs/
